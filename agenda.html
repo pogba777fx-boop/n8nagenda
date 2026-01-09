@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bati-Panel de Agendas v3.0</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #1a1a1a; color: white; display: flex; justify-content: center; padding: 20px; }
+        .container { background-color: #2d2d2d; padding: 30px; border-radius: 15px; box-shadow: 0 8px 16px rgba(0,0,0,0.5); width: 100%; max-width: 500px; }
+        h2 { color: #f39c12; text-align: center; margin-bottom: 25px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #bdc3c7; }
+        input, textarea, select { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #444; background-color: #3d3d3d; color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background-color: #f39c12; border: none; border-radius: 8px; color: black; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; }
+        button:hover { background-color: #e67e22; }
+        .footer { text-align: center; font-size: 12px; color: #7f8c8d; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>⚽ GENERADOR DE AGENDAS</h2>
+    
+    <label>🏆 LIGA (Ej: BUNDESLIGA, LA LIGA, PREMIER):</label>
+    <input type="text" id="liga" placeholder="Escribe la liga aquí..." value="LA LIGA">
+
+    <label>📅 FECHA DEL EVENTO:</label>
+    <input type="text" id="fecha" placeholder="Ej: 09/01/2026">
+
+    <label>📺 CANAL (Ej: DGO, DISNEY+ PREMIUM):</label>
+    <input type="text" id="canal" placeholder="Escribe el canal aquí..." value="DGO">
+
+    <label>📝 PARTIDOS (Formato: Equipo vs Equipo Hora):</label>
+    <textarea id="partidos" rows="5" placeholder="Getafe vs Real Sociedad 15:00"></textarea>
+
+    <button onclick="enviarABatiCueva()">🚀 GENERAR AGENDA</button>
+
+    <div class="footer">Sistema Automatizado n8n + Puppeteer</div>
+</div>
+
+<script>
+    // 1. Ponemos la fecha de mañana automáticamente para ahorrar tiempo
+    const mañana = new Date();
+    mañana.setDate(mañana.getDate() + 1);
+    document.getElementById('fecha').value = mañana.toLocaleDateString('es-ES');
+
+    // 2. Función para limpiar tildes antes de enviar
+    function limpiarTildes(texto) {
+        return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
+
+    async function enviarABatiCueva() {
+        const btn = document.querySelector('button');
+	const webhookURL = "https://m43xqxrk65p6.share.zrok.io/webhook-test/bc985601-3f5f-4dd7-badb-6e6f126ef979";
+
+        const datos = {
+            liga: limpiarTildes(document.getElementById('liga').value.toUpperCase()),
+            canal: limpiarTildes(document.getElementById('canal').value.toUpperCase()),
+            fecha: document.getElementById('fecha').value,
+            partidos: limpiarTildes(document.getElementById('partidos').value)
+        };
+
+        btn.innerText = "⏳ ENVIANDO...";
+        btn.disabled = true;
+
+        try {
+            const response = await fetch(webhookURL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(datos)
+            });
+
+            if (response.ok) {
+                alert("✅ ¡Bati-datos enviados! Revisa tu Telegram.");
+            } else {
+                alert("❌ Error en el servidor n8n.");
+            }
+        } catch (error) {
+            alert("❌ No se pudo conectar con el Webhook.");
+        } finally {
+            btn.innerText = "🚀 GENERAR AGENDA";
+            btn.disabled = false;
+        }
+    }
+</script>
+
+</body>
+</html>
+
